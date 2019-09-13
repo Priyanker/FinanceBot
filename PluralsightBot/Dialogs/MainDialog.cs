@@ -38,8 +38,6 @@ namespace FinanceBot.Dialogs
 
             // Add Named Dialogs
             AddDialog(new GreetingDialog($"{nameof(MainDialog)}.greeting", _botStateService));
-            AddDialog(new BugReportDialog($"{nameof(MainDialog)}.bugReport", _botStateService));
-            AddDialog(new BugTypeDialog($"{nameof(MainDialog)}.bugType", _botStateService, _botServices));
             AddDialog(new RevenueDialog($"{nameof(MainDialog)}.revenue", _botStateService, _botServices));
             AddDialog(new WaterfallDialog($"{nameof(MainDialog)}.mainFlow", waterfallSteps));
 
@@ -61,10 +59,6 @@ namespace FinanceBot.Dialogs
             {
                 case "GreetingIntent":
                     return await stepContext.BeginDialogAsync($"{nameof(MainDialog)}.greeting", null, cancellationToken);
-                case "NewBugReportIntent":
-                    return await stepContext.BeginDialogAsync($"{nameof(MainDialog)}.bugReport", null, cancellationToken);
-                case "QueryBugTypeIntent":
-                    return await stepContext.BeginDialogAsync($"{nameof(MainDialog)}.bugType", null, cancellationToken);
                 case "FindRevenueIntent":
                     return await stepContext.BeginDialogAsync($"{nameof(MainDialog)}.revenue", null, cancellationToken);
                 default:
