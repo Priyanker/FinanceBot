@@ -53,8 +53,6 @@ namespace FinanceBot.Dialogs
             // Top intent tell us which cognitive service to use.
             var topIntent = recognizerResult.GetTopScoringIntent();
 
-            string x = LuisRecognizer.TopIntent(recognizerResult);
-
             switch (topIntent.intent)
             {
                 case "GreetingIntent":

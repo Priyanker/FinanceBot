@@ -55,6 +55,11 @@ namespace FinanceBot.Dialogs
         {
             var result = await _botServices.Dispatch.RecognizeAsync(stepContext.Context, cancellationToken);
             var luisResult = result.Properties["luisResult"] as LuisResult;
+            if(luisResult.Entities.Count == 0)
+            {
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text(String.Format("Please provide a company name.")), cancellationToken);
+                return await stepContext.NextAsync(null, cancellationToken);
+            }
             var entity = luisResult.Entities[0];
             
             var symbols = await GetSymbolsList();

@@ -50,7 +50,7 @@ namespace FinanceBot.Dialogs
                 return await stepContext.PromptAsync($"{nameof(GreetingDialog)}.name",
                     new PromptOptions
                     {
-                        Prompt = MessageFactory.Text("What is your name?")
+                        Prompt = MessageFactory.Text("Hi. What is your name?")
                     }, cancellationToken);
             }
             else
