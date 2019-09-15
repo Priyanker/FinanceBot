@@ -11,6 +11,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using FinanceBot.Models;
+using System.Collections.Generic;
 
 namespace FinanceBot.Dialogs
 {
@@ -53,21 +54,32 @@ namespace FinanceBot.Dialogs
 
         private async Task<DialogTurnResult> InitialStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var result = await _botServices.Dispatch.RecognizeAsync(stepContext.Context, cancellationToken);
-            var luisResult = result.Properties["luisResult"] as LuisResult;
+            RecognizerResult result = await _botServices.Dispatch.RecognizeAsync(stepContext.Context, cancellationToken);
+            LuisResult luisResult = result.Properties["luisResult"] as LuisResult;
             if(luisResult.Entities.Count == 0)
             {
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text(String.Format("Please provide a company name.")), cancellationToken);
                 return await stepContext.NextAsync(null, cancellationToken);
             }
-            var entity = luisResult.Entities[0];
-            
+            EntityModel companyName = (luisResult.Entities as List<EntityModel>).Find(ent => ent.Type.Contains("company", StringComparison.OrdinalIgnoreCase));
+            EntityModel year = (luisResult.Entities as List<EntityModel>).Find(ent => ent.Type.Contains("number", StringComparison.OrdinalIgnoreCase));
             var symbols = await GetSymbolsList();
-            var symbol = symbols.symbolsList.Find(symbolObject => symbolObject.Name.Contains(entity.Entity, StringComparison.OrdinalIgnoreCase));
+            var symbol = symbols.symbolsList.Find(symbolObject => symbolObject.Name.Contains(companyName.Entity, StringComparison.OrdinalIgnoreCase) || symbolObject.SymbolId.Equals(companyName.Entity, StringComparison.OrdinalIgnoreCase));
             if(symbol!= null)
             {
-                var symbolFinancialData = await GetSymbolsData(symbol.SymbolId);
-                await stepContext.Context.SendActivityAsync(MessageFactory.Text(String.Format("Revenue of {0} is {1}", symbol.Name, symbolFinancialData.Financials[0].Revenue)), cancellationToken);
+                var symbolFinancialData = await GetSymbolsData(symbol.SymbolId, Int32.Parse(year?.Entity ?? DateTime.Now.Year.ToString()));
+                if(symbolFinancialData != null)
+                {
+                    if(!symbolFinancialData.Date.Contains(year?.Entity ?? DateTime.Now.Year.ToString()))
+                    {
+                        await stepContext.Context.SendActivityAsync(MessageFactory.Text(String.Format("Financial data of {0} is not yet available for year {1}", symbol.Name, DateTime.Now.Year.ToString())), cancellationToken);
+                    }
+                    await stepContext.Context.SendActivityAsync(MessageFactory.Text(String.Format("Revenue of {0} in {1} is {2}", symbol.Name, DateTime.Parse(symbolFinancialData.Date).Year, symbolFinancialData.Revenue)), cancellationToken);
+                }
+                else
+                {
+                    await stepContext.Context.SendActivityAsync(MessageFactory.Text(String.Format("No financial data available for {0} in the year {1}", symbol.Name, year.Entity)), cancellationToken);
+                }
             }
             else
             {
@@ -94,18 +106,25 @@ namespace FinanceBot.Dialogs
             return JsonConvert.DeserializeObject<SymbolsList>(content);
 
         }
-        public async Task<IncomeStatementModel> GetSymbolsData(string symbolId)
+        public async Task<FinancialData> GetSymbolsData(string symbolId, int year)
         {
-            string url = "https://financialmodelingprep.com/api/v3/financials/income-statement/" + symbolId;
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            var request = new HttpRequestMessage(HttpMethod.Get, "financials/income-statement/" + symbolId);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             var response = await _httpClient.SendAsync(request);
 
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<IncomeStatementModel>(content);
-
+            IncomeStatementModel incomeModel = JsonConvert.DeserializeObject<IncomeStatementModel>(content);
+            var financial = incomeModel.Financials.Find(financialData => DateTime.Parse(financialData.Date).Year == year);
+            if(financial == null && year == DateTime.Now.Year)
+            {
+                return incomeModel.Financials.Find(financialData => DateTime.Parse(financialData.Date).Year == year-1);
+            }
+            else
+            {
+                return financial;
+            }
         }
     }
 }
