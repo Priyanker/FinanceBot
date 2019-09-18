@@ -48,21 +48,28 @@ namespace FinanceBot.Dialogs
         private async Task<DialogTurnResult> InitialStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             // First, we use the dispatch model to determine which cognitive service (LUIS or QnA) to use.
-            var recognizerResult = await _botServices.Dispatch.RecognizeAsync(stepContext.Context, cancellationToken);
-
-            // Top intent tell us which cognitive service to use.
-            var topIntent = recognizerResult.GetTopScoringIntent();
-
-            switch (topIntent.intent)
+            try
             {
-                case "GreetingIntent":
-                    return await stepContext.BeginDialogAsync($"{nameof(MainDialog)}.greeting", null, cancellationToken);
-                case "FindRevenueIntent":
-                    return await stepContext.BeginDialogAsync($"{nameof(MainDialog)}.revenue", null, cancellationToken);
-                default:
-                    await stepContext.Context.SendActivityAsync(MessageFactory.Text($"I'm sorry I don't know what you mean."), cancellationToken);
-                    break;
+                var recognizerResult = await _botServices.Dispatch.RecognizeAsync(stepContext.Context, cancellationToken);
+                // Top intent tell us which cognitive service to use.
+                var topIntent = recognizerResult.GetTopScoringIntent();
+                
+                switch (topIntent.intent)
+                {
+                    case "GreetingIntent":
+                        return await stepContext.BeginDialogAsync($"{nameof(MainDialog)}.greeting", null, cancellationToken);
+                    case "FindRevenueIntent":
+                        return await stepContext.BeginDialogAsync($"{nameof(MainDialog)}.revenue", null, cancellationToken);
+                    default:
+                        await stepContext.Context.SendActivityAsync(MessageFactory.Text($"I'm sorry I don't know what you mean."), cancellationToken);
+                        break;
+                }
             }
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            
 
             return await stepContext.NextAsync(null, cancellationToken);
         }

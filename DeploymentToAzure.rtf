@@ -1,0 +1,256 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\colortbl ;\red0\green0\blue255;}
+{\*\generator Riched20 10.0.18362}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang9 az account set --subscription "7f3318e9-fdc3-4144-83fa-4a29ba2631df"\par
+\par
+az ad app create --display-name "finance-bot-registration" --password "FinanceBotEpamPassword" --available-to-other-tenants true\par
+\{\par
+  "acceptMappedClaims": null,\par
+  "addIns": [],\par
+  "allowGuestsSignIn": null,\par
+  "allowPassthroughUsers": null,\par
+  "appId": "b077cb0f-46ee-468e-a22c-f43ca7c52424",\par
+  "appLogoUrl": null,\par
+  "appPermissions": null,\par
+  "appRoles": [],\par
+  "applicationTemplateId": null,\par
+  "availableToOtherTenants": true,\par
+  "deletionTimestamp": null,\par
+  "displayName": "finance-bot-registration",\par
+  "errorUrl": null,\par
+  "groupMembershipClaims": null,\par
+  "homepage": null,\par
+  "identifierUris": [],\par
+  "informationalUrls": \{\par
+    "marketing": null,\par
+    "privacy": null,\par
+    "support": null,\par
+    "termsOfService": null\par
+  \},\par
+  "isDeviceOnlyAuthSupported": null,\par
+  "keyCredentials": [],\par
+  "knownClientApplications": [],\par
+  "logo@odata.mediaContentType": "application/json;odata=minimalmetadata; charset=utf-8",\par
+  "logo@odata.mediaEditLink": "directoryObjects/e8ad5260-78e2-4f23-a9f4-982fa6b8c0d7/Microsoft.DirectoryServices.Application/logo",\par
+  "logoUrl": null,\par
+  "logoutUrl": null,\par
+  "mainLogo@odata.mediaEditLink": "directoryObjects/e8ad5260-78e2-4f23-a9f4-982fa6b8c0d7/Microsoft.DirectoryServices.Application/mainLogo",\par
+  "oauth2AllowIdTokenImplicitFlow": true,\par
+  "oauth2AllowImplicitFlow": false,\par
+  "oauth2AllowUrlPathMatching": false,\par
+  "oauth2Permissions": [\par
+    \{\par
+      "adminConsentDescription": "Allow the application to access finance-bot-registration on behalf of the signed-in user.",\par
+      "adminConsentDisplayName": "Access finance-bot-registration",\par
+      "id": "181857df-4b23-48ef-825e-ec8458261dc6",\par
+      "isEnabled": true,\par
+      "type": "User",\par
+      "userConsentDescription": "Allow the application to access finance-bot-registration on your behalf.",\par
+      "userConsentDisplayName": "Access finance-bot-registration",\par
+      "value": "user_impersonation"\par
+    \}\par
+  ],\par
+  "oauth2RequirePostResponse": false,\par
+  "objectId": "e8ad5260-78e2-4f23-a9f4-982fa6b8c0d7",\par
+  "objectType": "Application",\par
+  "odata.metadata": "{{\field{\*\fldinst{HYPERLINK https://graph.windows.net/b41b72d0-4e9f-4c26-8a69-f949f367c91d/$metadata#directoryObjects/@Element }}{\fldrslt{https://graph.windows.net/b41b72d0-4e9f-4c26-8a69-f949f367c91d/$metadata#directoryObjects/@Element\ul0\cf0}}}}\f0\fs22 ",\par
+  "odata.type": "Microsoft.DirectoryServices.Application",\par
+  "optionalClaims": null,\par
+  "orgRestrictions": [],\par
+  "parentalControlSettings": \{\par
+    "countriesBlockedForMinors": [],\par
+    "legalAgeGroupRule": "Allow"\par
+  \},\par
+  "passwordCredentials": [\par
+    \{\par
+      "additionalProperties": null,\par
+      "customKeyIdentifier": null,\par
+      "endDate": "2020-09-13T08:37:10.211631+00:00",\par
+      "keyId": "55d9a77b-fc35-43bb-a6e3-09c76527da61",\par
+      "startDate": "2019-09-13T08:37:10.211631+00:00",\par
+      "value": null\par
+    \}\par
+  ],\par
+  "preAuthorizedApplications": null,\par
+  "publicClient": null,\par
+  "publisherDomain": "EPAM.onmicrosoft.com",\par
+  "recordConsentConditions": null,\par
+  "replyUrls": [],\par
+  "requiredResourceAccess": [],\par
+  "samlMetadataUrl": null,\par
+  "signInAudience": "AzureADMultipleOrgs",\par
+  "tokenEncryptionKeyId": null,\par
+  "wwwHomepage": null\par
+\}\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+az deployment create --name "FinanceBotDeployment" --template-file "D:\\ChatBot POC\\FinanceBot\\PluralsightBot\\DeploymentTemplates\\template-with-new-rg.json" --location "westus" --parameters appId="b077cb0f-46ee-468e-a22c-f43ca7c52424" appSecret="FinanceBotEpamPassword" botId="FinanceBotEpam" botSku=F0 newAppServicePlanName="finance-bot-epam" newWebAppName="FinanceBotEpamApp" groupName="finance-bot-resource-group" groupLocation="westus" newAppServicePlanLocation="westus"\par
+\par
+\{\par
+  "id": "/subscriptions/7f3318e9-fdc3-4144-83fa-4a29ba2631df/providers/Microsoft.Resources/deployments/FinanceBotDeployment",\par
+  "location": "westus",\par
+  "name": "FinanceBotDeployment",\par
+  "properties": \{\par
+    "correlationId": "b2331992-a3b5-4e36-86c5-64dc3b567b04",\par
+    "debugSetting": null,\par
+    "dependencies": [\par
+      \{\par
+        "dependsOn": [\par
+          \{\par
+            "id": "/subscriptions/7f3318e9-fdc3-4144-83fa-4a29ba2631df/resourceGroups/finance-bot-resource-group",\par
+            "resourceName": "finance-bot-resource-group",\par
+            "resourceType": "Microsoft.Resources/resourceGroups"\par
+          \}\par
+        ],\par
+        "id": "/subscriptions/7f3318e9-fdc3-4144-83fa-4a29ba2631df/resourceGroups/finance-bot-resource-group/providers/Microsoft.Resources/deployments/storageDeployment",\par
+        "resourceGroup": "finance-bot-resource-group",\par
+        "resourceName": "storageDeployment",\par
+        "resourceType": "Microsoft.Resources/deployments"\par
+      \}\par
+    ],\par
+    "duration": "PT4M17.4375624S",\par
+    "mode": "Incremental",\par
+    "onErrorDeployment": null,\par
+    "outputResources": [\par
+      \{\par
+        "id": "/subscriptions/7f3318e9-fdc3-4144-83fa-4a29ba2631df/resourceGroups/finance-bot-resource-group"\par
+      \},\par
+      \{\par
+        "id": "/subscriptions/7f3318e9-fdc3-4144-83fa-4a29ba2631df/resourceGroups/finance-bot-resource-group/providers/Microsoft.BotService/botServices/FinanceBotEpam",\par
+        "resourceGroup": "finance-bot-resource-group"\par
+      \},\par
+      \{\par
+        "id": "/subscriptions/7f3318e9-fdc3-4144-83fa-4a29ba2631df/resourceGroups/finance-bot-resource-group/providers/Microsoft.Web/serverfarms/finance-bot-epam",\par
+        "resourceGroup": "finance-bot-resource-group"\par
+      \},\par
+      \{\par
+        "id": "/subscriptions/7f3318e9-fdc3-4144-83fa-4a29ba2631df/resourceGroups/finance-bot-resource-group/providers/Microsoft.Web/sites/FinanceBotEpamApp",\par
+        "resourceGroup": "finance-bot-resource-group"\par
+      \}\par
+    ],\par
+    "outputs": null,\par
+    "parameters": \{\par
+      "appId": \{\par
+        "type": "String",\par
+        "value": "b077cb0f-46ee-468e-a22c-f43ca7c52424"\par
+      \},\par
+      "appSecret": \{\par
+        "type": "String",\par
+        "value": "FinanceBotEpamPassword"\par
+      \},\par
+      "botId": \{\par
+        "type": "String",\par
+        "value": "FinanceBotEpam"\par
+      \},\par
+      "botSku": \{\par
+        "type": "String",\par
+        "value": "F0"\par
+      \},\par
+      "groupLocation": \{\par
+        "type": "String",\par
+        "value": "westus"\par
+      \},\par
+      "groupName": \{\par
+        "type": "String",\par
+        "value": "finance-bot-resource-group"\par
+      \},\par
+      "newAppServicePlanLocation": \{\par
+        "type": "String",\par
+        "value": "westus"\par
+      \},\par
+      "newAppServicePlanName": \{\par
+        "type": "String",\par
+        "value": "finance-bot-epam"\par
+      \},\par
+      "newAppServicePlanSku": \{\par
+        "type": "Object",\par
+        "value": \{\par
+          "capacity": 1,\par
+          "family": "S",\par
+          "name": "S1",\par
+          "size": "S1",\par
+          "tier": "Standard"\par
+        \}\par
+      \},\par
+      "newWebAppName": \{\par
+        "type": "String",\par
+        "value": "FinanceBotEpamApp"\par
+      \}\par
+    \},\par
+    "parametersLink": null,\par
+    "providers": [\par
+      \{\par
+        "id": null,\par
+        "namespace": "Microsoft.Resources",\par
+        "registrationPolicy": null,\par
+        "registrationState": null,\par
+        "resourceTypes": [\par
+          \{\par
+            "aliases": null,\par
+            "apiVersions": null,\par
+            "capabilities": null,\par
+            "locations": [\par
+              "westus"\par
+            ],\par
+            "properties": null,\par
+            "resourceType": "resourceGroups"\par
+          \},\par
+          \{\par
+            "aliases": null,\par
+            "apiVersions": null,\par
+            "capabilities": null,\par
+            "locations": [\par
+              null\par
+            ],\par
+            "properties": null,\par
+            "resourceType": "deployments"\par
+          \}\par
+        ]\par
+      \}\par
+    ],\par
+    "provisioningState": "Succeeded",\par
+    "template": null,\par
+    "templateHash": "4093282842356753586",\par
+    "templateLink": null,\par
+    "timestamp": "2019-09-13T09:33:40.273399+00:00"\par
+  \},\par
+  "type": "Microsoft.Resources/deployments"\par
+\}\par
+\par
+\par
+az bot prepare-deploy --lang Csharp --code-dir "D:\\ChatBot POC\\FinanceBot\\PluralsightBot" --proj-file-path "FinanceBot.csproj"\par
+Command group 'bot' is in preview. It may be changed/removed in a future release.\par
+true\par
+\par
+az webapp deployment source config-zip --resource-group "finance-bot-resource-group" --name "FinanceBotEpamApp" --src "D:\\ChatBot POC\\FinanceBot\\PluralsightBot\\PluralsightBot.zip"\par
+Getting scm site credentials for zip deployment\par
+Starting zip deployment. This operation can take a while to complete ...\par
+\{\par
+  "active": true,\par
+  "author": "N/A",\par
+  "author_email": "N/A",\par
+  "complete": true,\par
+  "deployer": "Push-Deployer",\par
+  "end_time": "2019-09-13T11:22:16.7323601Z",\par
+  "id": "6fe8ad4d90bb4891aa844c20e4e551f5",\par
+  "is_readonly": true,\par
+  "is_temp": false,\par
+  "last_success_end_time": "2019-09-13T11:22:16.7323601Z",\par
+  "log_url": "{{\field{\*\fldinst{HYPERLINK https://financebotepamapp.scm.azurewebsites.net/api/deployments/latest/log }}{\fldrslt{https://financebotepamapp.scm.azurewebsites.net/api/deployments/latest/log\ul0\cf0}}}}\f0\fs22 ",\par
+  "message": "Created via a push deployment",\par
+  "progress": "",\par
+  "provisioningState": null,\par
+  "received_time": "2019-09-13T11:21:12.8785309Z",\par
+  "site_name": "FinanceBotEpamApp",\par
+  "start_time": "2019-09-13T11:21:13.0348024Z",\par
+  "status": 4,\par
+  "status_text": "",\par
+  "url": "{{\field{\*\fldinst{HYPERLINK https://financebotepamapp.scm.azurewebsites.net/api/deployments/latest }}{\fldrslt{https://financebotepamapp.scm.azurewebsites.net/api/deployments/latest\ul0\cf0}}}}\f0\fs22 "\par
+\}\par
+}
+ 
