@@ -74,7 +74,7 @@ namespace FinanceBot.Dialogs
                     {
                         await stepContext.Context.SendActivityAsync(MessageFactory.Text(String.Format("Financial data of {0} is not yet available for year {1}", symbol.Name, DateTime.Now.Year.ToString())), cancellationToken);
                     }
-                    await stepContext.Context.SendActivityAsync(MessageFactory.Text(String.Format("Revenue of {0} in {1} is {2}", symbol.Name, DateTime.Parse(symbolFinancialData.Date).Year, symbolFinancialData.Revenue)), cancellationToken);
+                    await stepContext.Context.SendActivityAsync(MessageFactory.Text(String.Format("Revenue of {0} in {1} is {2} million", symbol.Name, DateTime.Parse(symbolFinancialData.Date).Year, Double.Parse(symbolFinancialData.Revenue) / 1000000)), cancellationToken);
                 }
                 else
                 {
