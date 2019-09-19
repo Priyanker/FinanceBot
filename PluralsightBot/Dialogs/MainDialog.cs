@@ -1,11 +1,7 @@
 ﻿using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.AI.Luis;
 using Microsoft.Bot.Builder.Dialogs;
 using FinanceBot.Services;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,13 +12,15 @@ namespace FinanceBot.Dialogs
         #region Variables
         private readonly BotStateService _botStateService;
         private readonly BotServices _botServices;
+        private readonly FinancialServices _financialServices;
         #endregion  
 
 
-        public MainDialog(BotStateService botStateService, BotServices botServices) : base(nameof(MainDialog))
+        public MainDialog(BotStateService botStateService, BotServices botServices, FinancialServices financialServices) : base(nameof(MainDialog))
         {
             _botStateService = botStateService ?? throw new System.ArgumentNullException(nameof(botStateService));
             _botServices = botServices ?? throw new System.ArgumentNullException(nameof(botServices));
+            _financialServices = financialServices ?? throw new System.ArgumentNullException(nameof(financialServices));
 
             InitializeWaterfallDialog();
         }
@@ -38,7 +36,8 @@ namespace FinanceBot.Dialogs
 
             // Add Named Dialogs
             AddDialog(new GreetingDialog($"{nameof(MainDialog)}.greeting", _botStateService));
-            AddDialog(new RevenueDialog($"{nameof(MainDialog)}.revenue", _botStateService, _botServices));
+            AddDialog(new RevenueDialog($"{nameof(MainDialog)}.revenue", _botStateService, _botServices, _financialServices));
+            AddDialog(new QuarterlyRevenueDialog($"{nameof(MainDialog)}.quarterlyRevenue", _botStateService, _botServices, _financialServices));
             AddDialog(new WaterfallDialog($"{nameof(MainDialog)}.mainFlow", waterfallSteps));
 
             // Set the starting Dialog
@@ -60,6 +59,8 @@ namespace FinanceBot.Dialogs
                         return await stepContext.BeginDialogAsync($"{nameof(MainDialog)}.greeting", null, cancellationToken);
                     case "FindRevenueIntent":
                         return await stepContext.BeginDialogAsync($"{nameof(MainDialog)}.revenue", null, cancellationToken);
+                    case "FindQuarterlyRevenueIntent":
+                        return await stepContext.BeginDialogAsync($"{nameof(MainDialog)}.quarterlyRevenue", null, cancellationToken);
                     default:
                         await stepContext.Context.SendActivityAsync(MessageFactory.Text($"I'm sorry I don't know what you mean."), cancellationToken);
                         break;

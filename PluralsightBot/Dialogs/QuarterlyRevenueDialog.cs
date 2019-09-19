@@ -5,10 +5,11 @@ using FinanceBot.Services;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace FinanceBot.Dialogs
 {
-    public class RevenueDialog : ComponentDialog
+    public class QuarterlyRevenueDialog : ComponentDialog
     {
         #region Variables
         private readonly BotStateService _botStateService;
@@ -17,7 +18,7 @@ namespace FinanceBot.Dialogs
         #endregion  
 
 
-        public RevenueDialog(string dialogId, BotStateService botStateService, BotServices botServices, FinancialServices financialServices) : base(dialogId)
+        public QuarterlyRevenueDialog(string dialogId, BotStateService botStateService, BotServices botServices, FinancialServices financialServices) : base(dialogId)
         {
             _botStateService = botStateService ?? throw new System.ArgumentNullException(nameof(botStateService));
             _botServices = botServices ?? throw new System.ArgumentNullException(nameof(botServices));
@@ -35,40 +36,45 @@ namespace FinanceBot.Dialogs
             };
 
             // Add Named Dialogs
-            AddDialog(new WaterfallDialog($"{nameof(RevenueDialog)}.mainFlow", waterfallSteps));
+            AddDialog(new WaterfallDialog($"{nameof(QuarterlyRevenueDialog)}.mainFlow", waterfallSteps));
 
             // Set the starting Dialog
-            InitialDialogId = $"{nameof(RevenueDialog)}.mainFlow";
+            InitialDialogId = $"{nameof(QuarterlyRevenueDialog)}.mainFlow";
         }
 
         private async Task<DialogTurnResult> InitialStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             RecognizerResult result = await _botServices.Dispatch.RecognizeAsync(stepContext.Context, cancellationToken);
             LuisResult luisResult = result.Properties["luisResult"] as LuisResult;
-            if(luisResult.Entities.Count == 0)
+            if (luisResult.Entities.Count == 0)
             {
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text(String.Format("Please provide a company name.")), cancellationToken);
                 return await stepContext.NextAsync(null, cancellationToken);
             }
             EntityModel companyName = _botServices.FindCompanyName(luisResult.Entities);
             EntityModel year = _botServices.FindYear(luisResult.Entities);
+            List<EntityModel> quarterPeriod = (List<EntityModel>)_botServices.FindQuarter(luisResult.Entities);
             var symbols = await _financialServices.GetSymbolsList();
             var symbol = symbols.symbolsList.Find(symbolObject => symbolObject.Name.Contains(companyName.Entity, StringComparison.OrdinalIgnoreCase) || symbolObject.SymbolId.Equals(companyName.Entity, StringComparison.OrdinalIgnoreCase));
-            if(symbol!= null)
+            if (symbol != null)
             {
-                var symbolFinancialData = await _financialServices.GetAnnualFinancialData(symbol.SymbolId, Int32.Parse(year?.Entity ?? DateTime.Now.Year.ToString()));
-                if(symbolFinancialData != null)
+                if (quarterPeriod.Exists(periodEntity => periodEntity.Entity.Equals("quarter", StringComparison.OrdinalIgnoreCase)))
                 {
-                    if(!symbolFinancialData.Date.Contains(year?.Entity ?? DateTime.Now.Year.ToString()))
+                    var symbolFinancialData = await _financialServices.GetQuarterlyFinancialData(symbol.SymbolId, Int32.Parse(year?.Entity ?? DateTime.Now.Year.ToString()), quarterPeriod.Find(periodEntity => !periodEntity.Entity.Equals("quarter", StringComparison.OrdinalIgnoreCase)));
+                    if (symbolFinancialData != null && symbolFinancialData.Revenue != "")
                     {
-                        await stepContext.Context.SendActivityAsync(MessageFactory.Text(String.Format("Financial data of {0} is not yet available for year {1}", symbol.Name, DateTime.Now.Year.ToString())), cancellationToken);
+                        if (!symbolFinancialData.Date.Contains(year?.Entity ?? DateTime.Now.Year.ToString()))
+                        {
+                            await stepContext.Context.SendActivityAsync(MessageFactory.Text(String.Format("Financial data of {0} is not yet available for year {1}", symbol.Name, DateTime.Now.Year.ToString())), cancellationToken);
+                        }
+                        await stepContext.Context.SendActivityAsync(MessageFactory.Text(String.Format("Revenue of {0} in the {1} quarter of {2} is {3} million", symbol.Name, quarterPeriod.Find(periodEntity => !periodEntity.Entity.Equals("quarter", StringComparison.OrdinalIgnoreCase)).Entity, DateTime.Parse(symbolFinancialData.Date).Year, Double.Parse(symbolFinancialData.Revenue) / 1000000)), cancellationToken);
                     }
-                    await stepContext.Context.SendActivityAsync(MessageFactory.Text(String.Format("Revenue of {0} in {1} is {2} million", symbol.Name, DateTime.Parse(symbolFinancialData.Date).Year, Double.Parse(symbolFinancialData.Revenue) / 1000000)), cancellationToken);
+                    else
+                    {
+                        await stepContext.Context.SendActivityAsync(MessageFactory.Text(String.Format("No financial data available for {0} in the year {1}", symbol.Name, year.Entity)), cancellationToken);
+                    }
                 }
-                else
-                {
-                    await stepContext.Context.SendActivityAsync(MessageFactory.Text(String.Format("No financial data available for {0} in the year {1}", symbol.Name, year.Entity)), cancellationToken);
-                }
+                
             }
             else
             {
@@ -82,5 +88,7 @@ namespace FinanceBot.Dialogs
         {
             return await stepContext.EndDialogAsync(null, cancellationToken);
         }
+
     }
 }
+

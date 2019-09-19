@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Azure;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Connector.Authentication;
 using Microsoft.Extensions.Configuration;
@@ -42,6 +41,8 @@ namespace FinanceBot
             // Configure Services
             services.AddSingleton<BotServices>();
 
+            //Configure HTTP finance service.
+            services.AddSingleton<FinancialServices>();
             // Configure State
             ConfigureState(services);
 

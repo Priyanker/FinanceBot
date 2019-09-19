@@ -1,9 +1,8 @@
-﻿using Microsoft.Bot.Builder.AI.Luis;
+﻿using Microsoft.Azure.CognitiveServices.Language.LUIS.Runtime.Models;
+using Microsoft.Bot.Builder.AI.Luis;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace FinanceBot.Services
 {
@@ -21,6 +20,17 @@ namespace FinanceBot.Services
         }
 
         public LuisRecognizer Dispatch { get; private set; }
-
+        public EntityModel FindCompanyName(IList<EntityModel> entities)
+        {
+            return (entities as List<EntityModel>).Find(ent => ent.Type.Contains("company", StringComparison.OrdinalIgnoreCase));
+        }
+        public EntityModel FindYear(IList<EntityModel> entities)
+        {
+            return (entities as List<EntityModel>).Find(ent => ent.Type.Contains("number", StringComparison.OrdinalIgnoreCase));
+        }
+        public IList<EntityModel> FindQuarter(IList<EntityModel> entities)
+        {
+            return (entities as List<EntityModel>).FindAll(ent => ent.Type.Equals("period", StringComparison.OrdinalIgnoreCase));
+        }
     }
 }
