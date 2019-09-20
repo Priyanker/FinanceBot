@@ -42,7 +42,7 @@ namespace FinanceBot
             services.AddSingleton<BotServices>();
 
             //Configure HTTP finance service.
-            services.AddSingleton<FinancialServices>();
+            services.AddSingleton<IFinancialServices,FinancialServices>();
             // Configure State
             ConfigureState(services);
 

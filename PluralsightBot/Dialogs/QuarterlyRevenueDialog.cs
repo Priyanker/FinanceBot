@@ -14,11 +14,11 @@ namespace FinanceBot.Dialogs
         #region Variables
         private readonly BotStateService _botStateService;
         private readonly BotServices _botServices;
-        private readonly FinancialServices _financialServices;
+        private readonly IFinancialServices _financialServices;
         #endregion  
 
 
-        public QuarterlyRevenueDialog(string dialogId, BotStateService botStateService, BotServices botServices, FinancialServices financialServices) : base(dialogId)
+        public QuarterlyRevenueDialog(string dialogId, BotStateService botStateService, BotServices botServices, IFinancialServices financialServices) : base(dialogId)
         {
             _botStateService = botStateService ?? throw new System.ArgumentNullException(nameof(botStateService));
             _botServices = botServices ?? throw new System.ArgumentNullException(nameof(botServices));
