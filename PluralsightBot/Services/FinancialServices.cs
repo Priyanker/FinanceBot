@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace FinanceBot.Services
 {
-    public class FinancialServices
+    public class FinancialServices: IFinancialServices
     {
         #region Variables
         private static HttpClient _httpClient = new HttpClient();
