@@ -1,6 +1,7 @@
 ﻿using FinanceBot.Models;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Azure.CognitiveServices.Language.LUIS.Runtime.Models;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -15,24 +16,30 @@ namespace FinanceBot.Services
     {
         #region Variables
         private static HttpClient _httpClient = new HttpClient();
+        private IMemoryCache _memoryCache;
         #endregion 
 
-        public FinancialServices()
+        public FinancialServices(IMemoryCache memoryCache)
         {
             _httpClient.BaseAddress = new Uri("https://financialmodelingprep.com/api/v3/");
             _httpClient.Timeout = new TimeSpan(0, 0, 30);
             _httpClient.DefaultRequestHeaders.Clear();
+            _memoryCache = memoryCache;
         }
         public async Task<SymbolsList> GetSymbolsList()
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, "company/stock/list?datatype=json");
-            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            var response = await _httpClient.SendAsync(request);
+            SymbolsList symbolsList;
+            bool isSymbolListExist = _memoryCache.TryGetValue("cachesymbols", out symbolsList);
+            if (!isSymbolListExist)
+            {
+                symbolsList = await GetListedSymbols();
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromMinutes(5));
 
-            response.EnsureSuccessStatusCode();
-
-            var content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<SymbolsList>(content);
+                _memoryCache.Set("cachesymbols", symbolsList, cacheEntryOptions);
+            }
+            return symbolsList;
+           
         }
         public async Task<FinancialData> GetAnnualFinancialData(string symbolId, int year)
         {
@@ -84,17 +91,29 @@ namespace FinanceBot.Services
 
             var content = await response.Content.ReadAsStringAsync();
             IncomeStatementModel incomeModel = JsonConvert.DeserializeObject<IncomeStatementModel>(content);
-            var financial = incomeModel.Financials.Find(financialData => DateTime.Parse(financialData.Date).Year == year && getQuarter(DateTime.Parse(financialData.Date).Month) == period);
+            var financial = incomeModel.Financials.Find(financialData => DateTime.Parse(financialData.Date).Year == year && GetQuarter(DateTime.Parse(financialData.Date).Month) == period);
             if (financial == null && year == DateTime.Now.Year)
             {
-                return incomeModel.Financials.Find(financialData => DateTime.Parse(financialData.Date).Year == year - 1 && getQuarter(DateTime.Parse(financialData.Date).Month) == period);
+                return incomeModel.Financials.Find(financialData => DateTime.Parse(financialData.Date).Year == year - 1 && GetQuarter(DateTime.Parse(financialData.Date).Month) == period);
             }
             else
             {
                 return financial;
             }
         }
-        private int getQuarter(int month)
+        private async Task<SymbolsList> GetListedSymbols()
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, "company/stock/list?datatype=json");
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var response = await _httpClient.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<SymbolsList>(content);
+
+        }
+        private int GetQuarter(int month)
         {
             if(month >=1 && month <=3)
             {
