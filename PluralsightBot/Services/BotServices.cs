@@ -32,5 +32,11 @@ namespace FinanceBot.Services
         {
             return (entities as List<EntityModel>).FindAll(ent => ent.Type.Equals("period", StringComparison.OrdinalIgnoreCase));
         }
+        public EntityModel FindCurrencySymbol(IList<EntityModel> entities)
+        {
+            return (entities as List<EntityModel>).Find(ent => ent.Type.Contains("builtin.currency", StringComparison.OrdinalIgnoreCase));
+        }
+
+        
     }
 }
