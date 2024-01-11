@@ -1,5 +1,6 @@
 # FinanceBot
-A finance chatbot developed using Microsoft Bot Framework and LUIS. EPAM Project
+A finance chatbot developed using Microsoft Bot Framework and LUIS. 
+
 Issues:
 1. Using the API account key instead of LUIS programmatic key. 401 error (permission denied)
 Fix: use the starter key provided in LUIS app manage section. Azure keys not working to call the REST APIs.
